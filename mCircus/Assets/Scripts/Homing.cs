@@ -146,6 +146,7 @@ var _rigidbody : Rigidbody;
 	
 	void OnCollisionEnter(Collision collision)
 	{
+		print ("collision on missile");
 		if (collision.gameObject.name == "player1")
         {
             hit = true;
