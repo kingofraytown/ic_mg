@@ -15,10 +15,13 @@ public class playerController :  MonoBehaviour
     public float boostTime = 1.0f;
     public float boostCount = 0.0f;
     public GameObject mCamera;
+
     public float coolDownTime;
     public float coolDownCount;
     public bool coolDown;
 
+    public float speedUpTime;
+    private float speedUp = 0;
 
     protected Animator animator;
     int stillCount;
@@ -29,6 +32,15 @@ public class playerController :  MonoBehaviour
         center,
         close
     }
+    public delegate void playerSpeedDelegate(float speed);
+    public static event playerSpeedDelegate playerSpeedEvent;
+
+    public delegate void playerStateDelegate(zState playerState);
+    public static event playerStateDelegate playerStateEvent;
+
+
+    public delegate void resetDelegate(float x);
+    public static event resetDelegate resetEvent;
     // Use this for initialization
     void OnEnable()
     {
@@ -39,6 +51,7 @@ public class playerController :  MonoBehaviour
     
     void OnDisable()
     {
+        Homing.missleEvent -= missileHandler;
         //PlayerStateController.onStateChange -= onStateChange;
     }
     void Start()
@@ -46,6 +59,9 @@ public class playerController :  MonoBehaviour
         animator = GetComponent<Animator> ();
         animator.SetBool("tiltOut",false);
         animator.SetBool("tiltIn", false);
+        speedUpTime = Time.time;
+
+        currentZState = zState.center;
     }
 
     void FixedUpdate()
@@ -71,6 +87,23 @@ public class playerController :  MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        /*if((speedUpTime + 5) < Time.time)
+        {
+            playerSpeed += 0.1f;
+            speedUp += 0.1f;
+            speedUpTime = Time.time;
+            playerSpeedEvent(playerSpeed);
+        }*/
+
+        if (transform.position.x >= 7000)
+        {
+            resetEvent(transform.position.x);
+            Vector3 pos = transform.position;
+
+            transform.position = new Vector3(0f, pos.y, pos.z);
+            
+        }
         this.transform.Translate(playerSpeed, 0f, 0f);
         //print("local " + transform.localPosition);
         //print("global " + transform.position);
@@ -108,11 +141,15 @@ public class playerController :  MonoBehaviour
                     {
                         animator.SetBool("tiltOut", true);
                         animator.SetBool("tiltIn", false);
+                        currentZState  = zState.far;
+                        //playerStateEvent(currentZState);
                         stillCount = 0;
                     } else if (tch.deltaPosition.y < -0.1f)
                     {
                         animator.SetBool("tiltIn", true);
                         animator.SetBool("tiltOut", false);
+                        currentZState = zState.close;
+                        //playerStateEvent(currentZState);
                         stillCount =0;
                     } 
                     else if(stillCount > 10)
@@ -120,6 +157,8 @@ public class playerController :  MonoBehaviour
                         print("sationary touch");
                         animator.SetBool("tiltOut", false);
                         animator.SetBool("tiltIn", false);
+                        currentZState = zState.center;
+                        //playerStateEvent(currentZState);
 
 
                     }
@@ -144,7 +183,7 @@ public class playerController :  MonoBehaviour
                 }
 
 
-                float newX = rightTouch.x * 0.8f * boostConstant;
+                float newX = rightTouch.x * 0.8f * boostConstant + speedUp;
 
                 if(rightTouch.x < 0)
                     newX = 2 * newX;
@@ -153,7 +192,7 @@ public class playerController :  MonoBehaviour
                 {
                     if(!boostActive)
                     {
-                        ActivateBoost();
+                        //ActivateBoost();
                     }
                     else
                     {
@@ -164,7 +203,7 @@ public class playerController :  MonoBehaviour
                 {
                     if(!boostActive)
                     {
-                        ActivateBoost();
+                        //ActivateBoost();
                     }
                     else
                     {
@@ -173,13 +212,13 @@ public class playerController :  MonoBehaviour
                 }
 
 
-                float newY = rightTouch.y * 0.8f * boostConstant;
+                float newY = rightTouch.y * 0.8f * boostConstant + speedUp;
 
                 if ((transform.position.y + newY) >= 20 + mCamera.transform.position.y)
                 {
                     if(!boostActive)
                     {
-                        ActivateBoost();
+                        //ActivateBoost();
                     }
                     else
                     {
@@ -189,7 +228,7 @@ public class playerController :  MonoBehaviour
                 {
                     if(!boostActive)
                     {
-                        ActivateBoost();
+                        //ActivateBoost();
                     }
                     else
                     {
@@ -202,24 +241,38 @@ public class playerController :  MonoBehaviour
 
             if (leftBool)
             {
-                float newZ = leftTouch.y * 0.5f;
+                float newZscale = leftTouch.y; //* //0.5f;
+                float newZPos = leftTouch.y; //* 1.5f;
+
                 //print("NewZ delta = " + newZ);
 
-               
+                ////translate the player position.z by the oppisite of newZ
 
-                if (transform.localScale.x + newZ >= 2.5f)
+                if (transform.position.z - newZPos <= -15f)
                 {
-                    newZ = 0f;
-                } else if (transform.localScale.x + newZ <= 0.5f)
+                    //newZscale = 0f;
+                    newZPos = 0f;
+                } 
+                else if (transform.position.z - newZPos >= 60f)
                 {
-                    newZ = 0f;
+                    //newZscale = 0f;
+                    newZPos = 0f;
                 }
-                transform.Translate(0f, 0f, newZ);
+                transform.Translate(0f, 0f, -newZPos );
 
-                transform.localScale += new Vector3(newZ, newZ, newZ);
+                //transform.localScale += new Vector3(newZscale, newZscale, newZPos);
                 //print("localscale after = "+ transform.localScale);
 
-
+                if(leftTouch.y > 0)
+                {
+                    //currentZState  = zState.far;
+                    //playerStateEvent(currentZState);
+                }
+                if(leftTouch.y < 0)
+                {
+                    //currentZState = zState.close;
+                    //playerStateEvent(currentZState);
+                }
 
             }
             
@@ -228,6 +281,8 @@ public class playerController :  MonoBehaviour
             animator.SetBool("tiltOut", false);
             animator.SetBool("tiltIn", false);
             stillCount = 0;
+            //currentZState = zState.center;
+            //playerStateEvent(currentZState);
         }
         //get the acceleration difference on z axis
         AccelX = Input.acceleration.x;

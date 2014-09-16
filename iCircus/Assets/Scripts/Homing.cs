@@ -36,6 +36,19 @@ var _rigidbody : Rigidbody;
         miss
     };
 
+    void OnEnable()
+    {
+        playerController.resetEvent += resetToOrigin;
+        // tiltListener.tiltEvent += MoveByZ;
+        //PlayerStateController.onStateChange += onStateChange;
+    }
+
+    void OnDisable()
+    {
+        playerController.resetEvent -= resetToOrigin;
+        //PlayerStateController.onStateChange -=
+        //  onPlayerStateChange;
+    }
     void Start()
     {
         //this.transform.position = transform.parent.transform.position;
@@ -69,9 +82,10 @@ var _rigidbody : Rigidbody;
 
     void LateUpdate()
     {
-        print("Missile velocity = " + missileVelocity);
+        //print("Missile velocity = " + missileVelocity);
 
     }
+
     void FixedUpdate()
     {
         //if (updateCount < 0)
@@ -84,32 +98,37 @@ var _rigidbody : Rigidbody;
             }
             homingMissile.velocity = transform.forward * missileVelocity;
 
-            /*if (dist < 5)
+            if (dist < 15)
             {
-                missileVelocity = 20f;
+                missileVelocity = 40f;
                 speedMatched = true;
             }
 
             if (missileVelocity != (originalVelocity * 0.8f) && speedMatched)
             {
                 missileVelocity += 1.5f;
-            }*/
+            }
             //print("missile velocity " + missileVelocity);
 
-        float newZ = homingMissile.transform.position.z * 0.2f;
-            print("missils z scale = " + newZ);
-            print("missils z position = " + homingMissile.transform.position.z);
-            newZ += 0.5f;
+        float newZ = homingMissile.transform.position.z;
+            //print("missils z scale = " + newZ);
+            //print("missils z position = " + homingMissile.transform.position.z);
+            //newZ += 0.5f;
             //scale capping
-            if (newZ > 2.5f)
-            {
-                newZ = 2.5f;
-            } else if (newZ < 0)
-            {
-                newZ = 0.5f;
-            }
 
-            gameObject.transform.localScale = (new Vector3(newZ, newZ, newZ));
+            if (newZ > 0)
+            {
+                float tz = newZ * 0.0033f;
+                newZ = 1 - tz;
+            } 
+            else if (newZ < 0)
+            {
+                float tz = newZ * -0.01f;
+                newZ = tz;
+            }
+            
+            //newZ *= -1f;
+            //gameObject.transform.localScale = (new Vector3(newZ, newZ, newZ));
             //print("Local Z = " + newZ);
             /*if ((Time.time - startTime) < lifetime - 3f)
         { 
@@ -170,5 +189,12 @@ var _rigidbody : Rigidbody;
         this.missileMod.SetActive(true);
 
         Fire();
+    }
+
+    public void resetToOrigin(float x)
+    {
+        Vector3 pos = transform.position;
+        
+        transform.position = new Vector3(pos.x - x, pos.y, pos.z);
     }
 }

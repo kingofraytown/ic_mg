@@ -10,6 +10,21 @@ public class CameraController : MonoBehaviour
     private Quaternion lastRotation;
     private Quaternion currentTargetRotation;
 	private float currLerpDistance = 0.0f;
+
+    public delegate void cameraSpeedDelegate(float speed);
+    public static event cameraSpeedDelegate cameraSpeedEvent;
+
+    public delegate void cameraActionDelegate(cameraAction ca);
+    public static event cameraActionDelegate cameraActionEvent;
+
+
+    public enum cameraAction
+    {
+        push,
+        pull,
+        sationary
+    }
+
 	void Start()
 	{
 		//Set the initial camera positioning to prevent any weird jerking
@@ -25,13 +40,16 @@ public class CameraController : MonoBehaviour
 
         lastRotation = transform.rotation;
 	}
-	void OnEnable()
-	{
-		//PlayerStateController.onStateChange +=
-		//	onPlayerStateChange;
-	}
+    void OnEnable()
+    {
+        playerController.resetEvent += resetToOrigin;
+        playerController.playerSpeedEvent += changeSpeed;
+        // tiltListener.tiltEvent += MoveByZ;
+        //PlayerStateController.onStateChange += onStateChange;
+    }
 	void OnDisable()
 	{
+        playerController.resetEvent -= resetToOrigin;
 		//PlayerStateController.onStateChange -=
 		//	onPlayerStateChange;
 	}
@@ -68,6 +86,12 @@ public class CameraController : MonoBehaviour
         
         }*/
 
+        /*if (transform.position.x >= 999)
+        {
+            Vector3 pos = transform.position;
+            transform.position = new Vector3(0f, pos.y, pos.z);
+
+        }*/
         transform.rotation = Quaternion.Lerp(lastRotation, currentTargetRotation, 2f);
     }
 
@@ -100,7 +124,7 @@ want to track the player.*/
 			Vector3 currCamPos = transform.position;
 			Vector3 currPlayerPos = playerObject.transform.position;
 			if(currCamPos.x == currPlayerPos.x&&currCamPos.y ==
-			   currPlayerPos.y)
+			   currPlayerPos.y && currCamPos.z == (currPlayerPos.z - 40f))
 			{
 				// Positions are the same - tell the camera not to move, then abort.
 				currLerpDistance = 1f;
@@ -116,8 +140,19 @@ want to track the player.*/
 			currTargetPosition = currPlayerPos;
 			// Change the Z position of the target to the same as the current.
 			//We don' want that to change.
-			currTargetPosition.z = currCamPos.z;
-		}
+        /*if (playerObject.transform.position.z < 0)
+        {
+            currTargetPosition.z = currPlayerPos.z - 60f;
+        } else if (playerObject.transform.position.z > 0)
+        {
+            currTargetPosition.z = currPlayerPos.z - 4f;
+        } else
+        {*/
+            //currTargetPosition.z = currCamPos.z;
+        currTargetPosition.z = currPlayerPos.z -40f;
+        //}
+        
+    }
 		void stopTrackingPlayer()
 		{
 			// Set the target positioning to the camera's current position
@@ -132,5 +167,18 @@ want to track the player.*/
 				// lerp to its current spot and stop there.
 				currLerpDistance = 1.0f;
 	}
+    public void resetToOrigin(float x)
+    {
+        Vector3 pos = transform.position;
+        
+        transform.position = new Vector3(pos.x - x, pos.y, pos.z);
+    }
+
+    public void changeSpeed(float pSpeed)
+    {
+        cameraTrackingSpeed = 0.1f * pSpeed;
+        cameraSpeedEvent(cameraTrackingSpeed);
+
+    }
 }
 

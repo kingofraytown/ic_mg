@@ -9,14 +9,19 @@ public class MissileLaucher : MonoBehaviour {
     private Homing homey;
     private Homing deadHomey;
     public int missileArraySize = 5;
+    public float velocity = 40f;
+    public float missileTurn = 8f;
+    public float missileLifeTime = 8f;
+    public bool ready = false;
     int gatherCount = 100;
 
     //public List <GameObject> missilesList = new List<GameObject>();
 
 	// Use this for initialization
 	void Start () {
+        ready = false;
 	
-        missileArray = new GameObject[missileArraySize];    
+        /*missileArray = new GameObject[missileArraySize];    
         for (int i = 0; i < missileArraySize; i++)
         {
 
@@ -25,8 +30,25 @@ public class MissileLaucher : MonoBehaviour {
                 print("nope");
             //missileArray[i].transform.parent = this.transform;
             missileArray[i].SetActive(false);
-        }
+        }*/
 	}
+
+    public bool GetReady()
+    {
+        missileArray = new GameObject[missileArraySize];    
+        for (int i = 0; i < missileArraySize; i++)
+        {
+            
+            missileArray[i] = Instantiate(missile,transform.position, transform.rotation) as GameObject;
+            if(missileArray[i] == null)
+                print("nope");
+            //missileArray[i].transform.parent = this.transform;
+            missileArray[i].SetActive(false);
+        }
+
+        //ready = true;
+        return true;
+    }
 	
 	// Update is called once per frame
 	void FixedUpdate () {
@@ -43,49 +65,53 @@ public class MissileLaucher : MonoBehaviour {
 
     public void Update()
     {
-        int seed1 = Random.Range(1, 200);
-        int seed2 = (int)(Time.time * seed1);
-        Random.seed = seed2;
-        int roll = Random.Range(1, 500);
-        //print("roll = " + roll);
-        if (roll == 4)
+        if (ready)
         {
-            FireMissile();
-            //Instantiate(missile,transform.position, transform.rotation);
-        }
+            int seed1 = Random.Range(1, 200);
+            int seed2 = (int)(Time.time * seed1);
+            Random.seed = seed2;
+            int roll = Random.Range(1, 500);
+            //print("roll = " + roll);
+            if (roll == 4)
+            {
+                FireMissile();
+                //Instantiate(missile,transform.position, transform.rotation);
+            }
         
-        if (roll == 15)
-        {
-            FireMissile();
+            if (roll == 15)
+            {
+                FireMissile();
 
-            //Instantiate(missile,transform.position, transform.rotation);
-        }
+                //Instantiate(missile,transform.position, transform.rotation);
+            }
         
-        if (roll == 32)
-        {
-            FireMissile();
+            if (roll == 32)
+            {
+                FireMissile();
 
-            //Instantiate(missile,transform.position, transform.rotation);
-        }
+                //Instantiate(missile,transform.position, transform.rotation);
+            }
         
-        if (roll == 44)
-        {
-            FireMissile();
+            if (roll == 44)
+            {
+                FireMissile();
 
-            //Instantiate(missile,transform.position, transform.rotation);
-        }
+                //Instantiate(missile,transform.position, transform.rotation);
+            }
 
-        gatherCount--;
+            gatherCount--;
 
-        if (gatherCount < 0)
-        {
-           // gatherMissiles();
-            gatherCount = 100;
+            if (gatherCount < 0)
+            {
+                // gatherMissiles();
+                gatherCount = 100;
+            }
         }
     }
 
     public void FireMissile()
     {
+       
         for (int i = 0; i < missileArraySize; i++)
         {
             homey = missile.GetComponent<Homing> ();
@@ -93,8 +119,9 @@ public class MissileLaucher : MonoBehaviour {
             {
                 missileArray[i].transform.position = gameObject.transform.position;
                 homey = missileArray[i].GetComponent<Homing> ();
-                homey.lifetime = 10f;
-                homey.missileVelocity = 32f;
+                homey.lifetime = missileLifeTime;
+                homey.missileVelocity = velocity;
+                homey.turn = missileTurn;
                 homey.startTime = Time.time;
                 homey.hit = false;
                 missileArray[i].SetActive(true);
@@ -115,4 +142,19 @@ public class MissileLaucher : MonoBehaviour {
             }
         }
     }*/
+
+    public int MissileCount()
+    {
+        int count = 0;
+        for (int i = 0; i < missileArraySize; i++)
+        {
+            homey = missile.GetComponent<Homing> ();
+            if(missileArray[i].activeInHierarchy == true)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
 }
