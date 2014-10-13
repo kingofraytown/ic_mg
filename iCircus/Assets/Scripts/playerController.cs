@@ -96,7 +96,7 @@ public class playerController :  MonoBehaviour
             playerSpeedEvent(playerSpeed);
         }*/
 
-        if (transform.position.x >= 7000)
+        if (transform.position.x >= 9000)
         {
             resetEvent(transform.position.x);
             Vector3 pos = transform.position;

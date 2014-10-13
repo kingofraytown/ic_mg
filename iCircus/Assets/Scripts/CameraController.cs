@@ -149,7 +149,7 @@ want to track the player.*/
         } else
         {*/
             //currTargetPosition.z = currCamPos.z;
-        currTargetPosition.z = currPlayerPos.z -40f;
+        currTargetPosition.z = currPlayerPos.z -60f;
         //}
         
     }

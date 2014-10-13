@@ -8,7 +8,7 @@ public class MissileLaucher : MonoBehaviour {
     public GameObject[] missileArray;
     private Homing homey;
     private Homing deadHomey;
-    public int missileArraySize = 5;
+    public int missileArraySize;
     public float velocity = 40f;
     public float missileTurn = 8f;
     public float missileLifeTime = 8f;
@@ -43,6 +43,7 @@ public class MissileLaucher : MonoBehaviour {
             if(missileArray[i] == null)
                 print("nope");
             //missileArray[i].transform.parent = this.transform;
+            missileArray[i].name = gameObject.name + i.ToString();
             missileArray[i].SetActive(false);
         }
 
@@ -124,6 +125,7 @@ public class MissileLaucher : MonoBehaviour {
                 homey.turn = missileTurn;
                 homey.startTime = Time.time;
                 homey.hit = false;
+                homey.parentName = gameObject.name;
                 missileArray[i].SetActive(true);
                 return;
             }

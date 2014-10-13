@@ -81,7 +81,7 @@ public class LaunchManager : MonoBehaviour {
             //uic.TimeText.text ="Stage 3 ";
             print("Stage 3 ");
 
-            IncreaseSpeedForAll(1);
+            IncreaseSpeedForAll(0.5f);
             stage = 3;
         }  
 
@@ -99,7 +99,7 @@ public class LaunchManager : MonoBehaviour {
             print("Stage 5 ");
             MissileLaucher l = GetLauncherScriptWithName("launcher5");
             l.ready = true;
-            IncreaseSpeedForAll(2);
+            IncreaseSpeedForAll(0.7f);
             stage = 5;
         }
 
@@ -130,7 +130,7 @@ public class LaunchManager : MonoBehaviour {
 
     }
 
-    void IncreaseSpeedForAll(int speedup)
+    void IncreaseSpeedForAll(float speedup)
     {
 
         for (int j = 0; j <launchers.Length; j++)

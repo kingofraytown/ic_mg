@@ -26,6 +26,7 @@ var _rigidbody : Rigidbody;
     public bool flying = false;
     public float eRate; 
     public int updateCount = 30;
+    public string parentName = "un named";
 
     public delegate void MissileDelegate(missileState newState);
     public static event MissileDelegate missleEvent;
@@ -98,7 +99,7 @@ var _rigidbody : Rigidbody;
             }
             homingMissile.velocity = transform.forward * missileVelocity;
 
-            if (dist < 15)
+            /*if (dist < 15)
             {
                 missileVelocity = 40f;
                 speedMatched = true;
@@ -107,7 +108,7 @@ var _rigidbody : Rigidbody;
             if (missileVelocity != (originalVelocity * 0.8f) && speedMatched)
             {
                 missileVelocity += 1.5f;
-            }
+            }*/
             //print("missile velocity " + missileVelocity);
 
         float newZ = homingMissile.transform.position.z;
@@ -155,6 +156,7 @@ var _rigidbody : Rigidbody;
         //}
 
         //updateCount--;
+       // print(gameObject.name + "pos_x= " + transform.position);
     }
 
     void OnCollisionEnter(Collision collision)
@@ -196,5 +198,6 @@ var _rigidbody : Rigidbody;
         Vector3 pos = transform.position;
         
         transform.position = new Vector3(pos.x - x, pos.y, pos.z);
+        //print(gameObject.name + " reset position");
     }
 }
