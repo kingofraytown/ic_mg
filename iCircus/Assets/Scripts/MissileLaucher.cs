@@ -12,6 +12,7 @@ public class MissileLaucher : MonoBehaviour {
     public float velocity = 40f;
     public float missileTurn = 8f;
     public float missileLifeTime = 8f;
+    public float max_rand_range = 400f;
     public bool ready = false;
     int gatherCount = 100;
 
@@ -71,7 +72,7 @@ public class MissileLaucher : MonoBehaviour {
             int seed1 = Random.Range(1, 200);
             int seed2 = (int)(Time.time * seed1);
             Random.seed = seed2;
-            int roll = Random.Range(1, 500);
+            int roll = Random.Range(1, 400);
             //print("roll = " + roll);
             if (roll == 4)
             {
@@ -119,6 +120,7 @@ public class MissileLaucher : MonoBehaviour {
             if(missileArray[i].activeInHierarchy == false)
             {
                 missileArray[i].transform.position = gameObject.transform.position;
+                missileArray[i].transform.rotation = gameObject.transform.rotation;
                 homey = missileArray[i].GetComponent<Homing> ();
                 homey.lifetime = missileLifeTime;
                 homey.missileVelocity = velocity;

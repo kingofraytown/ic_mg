@@ -152,6 +152,14 @@ var _rigidbody : Rigidbody;
 
             }
 
+        if (homingMissile.transform.position.z < -142)
+        {
+            int a;
+            int b;
+            a = 2;
+            b = 4;
+            int c = a + b;
+        }
             //updateCount = -1;
         //}
 

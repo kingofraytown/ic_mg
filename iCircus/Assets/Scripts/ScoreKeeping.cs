@@ -25,6 +25,7 @@ public class ScoreKeeping : MonoBehaviour {
     {
         score += points;
 
+        Toolbox.Instance.myGlobalVar = score;
     }
 
 

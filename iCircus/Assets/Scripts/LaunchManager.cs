@@ -39,6 +39,7 @@ public class LaunchManager : MonoBehaviour {
             {
             //launchers[i].SetActive(true);
             lScript = launchers[i].GetComponent<MissileLaucher> ();
+            lScript.max_rand_range = 300f;
             lScript.ready = true;
             }
             
