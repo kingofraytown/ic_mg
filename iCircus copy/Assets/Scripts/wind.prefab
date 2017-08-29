@@ -1,0 +1,31 @@
+using UnityEngine;
+using System.Collections;
+
+public class play_button : MonoBehaviour
+{
+
+    // Use this for initialization
+    void Start()
+    {
+	
+    }
+	
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.touches.Length > 0)
+		{
+
+			RaycastHit2D hitInfo = Physics2D.RaycastAll(Camera.main.ScreenToWorldPoint(Input.GetTouch(i).position), Vector2.zero);
+        
+
+				if (hitInfo.collider != null)
+				{
+
+                	if(hitInfo.collider.
+				}
+
+		}
+    }
+}
+

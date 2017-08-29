@@ -10,8 +10,8 @@ var _rigidbody : Rigidbody;
 */
 
 //cs
-    public float lifetime = 10f; 
-    public float missileVelocity = 0f;
+    public float lifetime = 7f; 
+    public float missileVelocity = 1.5f;
     private float originalVelocity;
     public float turn = 5f;
     public float fuseDelay;
@@ -19,7 +19,7 @@ var _rigidbody : Rigidbody;
     public GameObject missileMod;
     public ParticleSystem smokePrefab;
     public bool hit = false;
-    private Transform target;
+    public Transform target;
     public float startTime;
     private bool speedMatched;
     public bool activeMissile = true;
@@ -56,7 +56,7 @@ var _rigidbody : Rigidbody;
         //this.transform.rotation = transform.parent.transform.rotation;
         eRate = smokePrefab.emissionRate;
         startTime = Time.time;
-        homingMissile = transform.rigidbody;
+        homingMissile = transform.GetComponent<Rigidbody>();
         originalVelocity = missileVelocity;
     Fire();
         //GameObject go = GameObject.FindGameObjectWithTag("Player");

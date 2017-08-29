@@ -7,6 +7,13 @@ public class ScoreKeeping : MonoBehaviour {
     void OnEnable()
     {
         Homing.missleEvent += missileHandler;
+        Missile.smissleEvent += missileHandler2;
+    }
+
+    void OnDisable()
+    {
+        Homing.missleEvent -= missileHandler;
+        Missile.smissleEvent -= missileHandler2;
     }
 	// Use this for initialization
 	void Start () {
@@ -37,6 +44,14 @@ public class ScoreKeeping : MonoBehaviour {
     {
 
         if (ms == Homing.missileState.miss)
+        { 
+            AddToScore(100);
+        }
+    }
+    public void missileHandler2(Missile.missileState ms)
+    {
+
+        if (ms == Missile.missileState.miss)
         { 
             AddToScore(100);
         }

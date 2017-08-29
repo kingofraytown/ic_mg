@@ -92,7 +92,12 @@ public class CameraController : MonoBehaviour
             transform.position = new Vector3(0f, pos.y, pos.z);
 
         }*/
+
+        //print("lastRotation = " + lastRotation);
+        //print("currentTargetRotation = " + currentTargetRotation);
         transform.rotation = Quaternion.Lerp(lastRotation, currentTargetRotation, 2f);
+
+   
     }
 
     // Every cycle of the engine, process the current state

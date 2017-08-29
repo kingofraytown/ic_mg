@@ -3,11 +3,12 @@ using System.Collections;
 
 public class LaunchManager : MonoBehaviour {
 
-    public GameObject[] launchers = new GameObject[5];
+    public GameObject[] launchers = new GameObject[8];
     public float progressionSpeed = 1f;
     private float startTime;
     private int stage = 0;
     private MissileLaucher lScript;
+    private SMissileLauncher slScript;
     public GameObject UIobject;
     private UIController uic;
     private int activeMissiles = 0;
@@ -20,13 +21,20 @@ public class LaunchManager : MonoBehaviour {
 	void Start () {
         updateTime = Time.time;
         uic = UIobject.GetComponent<UIController>();
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 8; i++)
         {
             //if(launchers[i].name != "launcher1")
             //launchers[i].SetActive(true);
             lScript = launchers[i].GetComponent<MissileLaucher> ();
-            lScript.GetReady();
-
+            if (lScript == null)
+            {
+                slScript = launchers [i].GetComponent<SMissileLauncher>();
+                slScript.GetReady();
+            } else
+            {
+                
+                lScript.GetReady();
+            }
             //
 
         }
@@ -42,6 +50,15 @@ public class LaunchManager : MonoBehaviour {
             lScript.max_rand_range = 300f;
             lScript.ready = true;
             }
+
+            if(launchers[i].name == "launcherA")
+            {
+                //launchers[i].SetActive(true);
+                slScript = launchers[i].GetComponent<SMissileLauncher> ();
+                slScript.max_rand_range = 300f;
+                slScript.ready = true;
+            }
+
             
         }
 
@@ -52,7 +69,7 @@ public class LaunchManager : MonoBehaviour {
     {
         if (Time.time > updateTime + updateInterval)
         {
-            getActiveMissileCount();
+            //getActiveMissileCount();
             updateTime = Time.time;
         }
     }
@@ -65,7 +82,12 @@ public class LaunchManager : MonoBehaviour {
             //uic.TimeText.text ="Stage 1 ";
             MissileLaucher l = GetLauncherScriptWithName("launcher2");
             l.ready = true;
+
+            SMissileLauncher sl = GetSLauncherScriptWithName("launcherB");
+            sl.ready = true;
             stage = 1;
+
+
         }
 
         //at 60 sec add another launcher
@@ -74,6 +96,9 @@ public class LaunchManager : MonoBehaviour {
             //uic.TimeText.text ="Stage 2 ";
             MissileLaucher l = GetLauncherScriptWithName("launcher3");
             l.ready = true;
+
+            SMissileLauncher sl = GetSLauncherScriptWithName("launcherC");
+            sl.ready = true;
             stage = 2;
         }
         //at 90 increase missile velocity
@@ -131,6 +156,29 @@ public class LaunchManager : MonoBehaviour {
 
     }
 
+    SMissileLauncher GetSLauncherScriptWithName(string strName)
+    {
+        GameObject launcher = new GameObject();
+
+        //GameObject[] glist = GameObject.FindGameObjectsWithTag("Launcher");
+        //print("glist count " + glist.Length);
+        for(int j = 0;j <launchers.Length; j++)
+        {
+
+            //print("GO name = " + go.name);
+            if(launchers[j].name == strName)
+            {
+                print("launcher found");
+                launcher = launchers[j];
+                //break;
+            }
+        }
+
+        SMissileLauncher ml = launcher.GetComponent<SMissileLauncher>();
+        return ml;
+
+    }
+
     void IncreaseSpeedForAll(float speedup)
     {
 
@@ -147,10 +195,10 @@ public class LaunchManager : MonoBehaviour {
         for(int j = 0;j <launchers.Length; j++)
         {
             lScript = launchers[j].GetComponent<MissileLaucher> ();
-            count += lScript.MissileCount();
+            //count += lScript.MissileCount();
         }
 
-        uic.TimeText.text = "missiles: " + count.ToString();
+        //uic.TimeText.text = "missiles: " + count.ToString();
     }
 
 }

@@ -14,11 +14,22 @@ public class playerController :  MonoBehaviour
     private float originalSpeed;
     public float boostTime = 1.0f;
     public float boostCount = 0.0f;
+    private Vector2 FirstTouchCoord;
+    private Vector2 SecondTouchCrood;
+    private float tapStartTime = 0.0f;
+    public float tapDeltaTime = 0.5f;
+    public float tapDistanceLimit = 3f; 
+    public int tapCount = 0;
     public GameObject mCamera;
+    private TouchPhase newTouchPhase;
+    private Touch currentRightTouch = new Touch();
 
     public float coolDownTime;
     public float coolDownCount;
-    public bool coolDown;
+    public bool coolDownActive;
+    public GameObject boostBar;
+    private BoostDisplayController boostCon;
+
 
     public float speedUpTime;
     private float speedUp = 0;
@@ -45,6 +56,7 @@ public class playerController :  MonoBehaviour
     void OnEnable()
     {
         Homing.missleEvent += missileHandler;
+        //Missile.smissleEvent += missileHandler2;
        // tiltListener.tiltEvent += MoveByZ;
         //PlayerStateController.onStateChange += onStateChange;
     }
@@ -52,6 +64,7 @@ public class playerController :  MonoBehaviour
     void OnDisable()
     {
         Homing.missleEvent -= missileHandler;
+        //Missile.smissleEvent -= missileHandler2;
         //PlayerStateController.onStateChange -= onStateChange;
     }
     void Start()
@@ -62,26 +75,89 @@ public class playerController :  MonoBehaviour
         speedUpTime = Time.time;
 
         currentZState = zState.center;
+        boostCon = boostBar.GetComponent<BoostDisplayController> ();
+
     }
+    /*void LateUpdate()
+    {
+        if(boostActive){
+            float boostPercent = Time.time / boostCount;
+
+            if (boostPercent > 1)
+            {
+                boostPercent = 1;
+                boostCon.UpdateBoost(1 - boostPercent);
+                boostActive = false;
+                boostPercent = 0;
+                boostCon.UpdateBoost(1);
+                coolDownActive = true;
+                playerSpeed = originalSpeed;
+            }
+
+            boostCon.UpdateBoost(1 - boostPercent);
+        }
+
+    }*/
 
     void FixedUpdate()
     {
 
         //this.rigidbody.AddForce( new Vector3(2.0f, 0f,0f));
-        if (boostActive == true && (boostCount- Time.time <= 3))
+        /*if (boostActive == true && (boostCount <= 0))
         {
             playerSpeed -= 0.2f;
-            if(playerSpeed <= originalSpeed)
+            if (playerSpeed <= originalSpeed)
             {
-                boostActive = false;
+                //boostActive = false;
+                //boostCon.UpdateBoost(1);
+                //coolDownActive = true;
                 playerSpeed = originalSpeed;
-                boostCount = 0.0f;
+
             }
-        }
+
+
+        }*/
         if (boostActive)
         {
+            float boostPercent = boostCount / boostTime;
+            if (boostCount < 0)
+            {
+                boostPercent = 0;
+                boostCon.UpdateBoost(boostPercent);
+                boostActive = false;
+                boostPercent = 0;
+                //boostCon.UpdateBoost(1);
+                coolDownActive = true;
+                coolDownCount = coolDownTime;
+                playerSpeed = originalSpeed;
+            }
+            if(!coolDownActive)
+            {
+                boostCon.UpdateBoost(boostPercent);
+            }
+
             boostCount -= 0.1f;
+
         }
+
+        if (coolDownActive)
+        {
+            float coolDownPercent = coolDownCount/ coolDownTime;
+            if(coolDownCount < 0)
+            {
+                coolDownPercent = 1;
+                boostCon.UpdateCoolDown(0);
+                boostCon.FullGauge.SetActive(true);
+                coolDownActive = false;
+            }
+            if(!boostCon.FullGauge.activeSelf)
+            {
+                boostCon.UpdateCoolDown(coolDownPercent);
+            }
+
+            coolDownCount -= 0.1f;
+        }
+
 
     }
     // Update is called once per frame
@@ -114,14 +190,23 @@ public class playerController :  MonoBehaviour
             bool rightBool = false;
             Vector2 leftTouch = new Vector2();
             bool leftBool = false;
-
+            //Touch currentRightTouch = new Touch();
             foreach (Touch tch in Input.touches)
             {
+
                 //if the touch is on the right side of the screen
                 if (tch.position.x > (Screen.width / 2))
                 {
                     rightTouch.x = tch.deltaPosition.x;
                     rightTouch.y = tch.deltaPosition.y;
+
+
+                    if(tch.phase == TouchPhase.Ended)
+                    {
+                        currentRightTouch = tch;
+                        print("currentRightTouch has been updated");
+                    }
+                    newTouchPhase = tch.phase;
                     rightBool = true;
                     //print("Right touch = " + tch);
                     // print("Right local touch = " + tch);
@@ -175,6 +260,44 @@ public class playerController :  MonoBehaviour
             if (rightBool)
             {
 
+
+                if(newTouchPhase == TouchPhase.Ended)
+                {
+                    tapCount++;
+                    //tapStartTime = Time.time; 
+                    //FirstTouchCoord = rightTouch;
+                }
+
+
+
+                if(tapCount > 1 && (!boostActive && !coolDownActive))
+                {
+                    SecondTouchCrood = currentRightTouch.position;;
+                    float secondTapTime = Time.time;
+                    print("tap delta" + (secondTapTime - tapStartTime));
+                    if(((secondTapTime - tapStartTime) <= tapDeltaTime ) && (!boostActive))
+                    {
+                        print("passed time test");
+                        print("tap distance " + Vector2.Distance(FirstTouchCoord, SecondTouchCrood));
+                        if(Vector2.Distance(FirstTouchCoord, SecondTouchCrood) <= tapDistanceLimit)
+                        {
+                            print("passed distance test");
+                            ActivateBoost();
+                            tapCount = 0;
+                        }
+                    }
+                    else
+                    {
+                        tapCount = 0;
+                    }
+
+                }
+
+                if(tapCount == 1)
+                {
+                    tapStartTime = Time.time;
+                    FirstTouchCoord = currentRightTouch.position;
+                }
 
                 float boostConstant = 1f;
                 if(boostActive)
@@ -244,6 +367,7 @@ public class playerController :  MonoBehaviour
                 float newZscale = leftTouch.y; //* //0.5f;
                 float newZPos = leftTouch.y; //* 1.5f;
 
+             
                 //print("NewZ delta = " + newZ);
 
                 ////translate the player position.z by the oppisite of newZ
@@ -260,19 +384,7 @@ public class playerController :  MonoBehaviour
                 }
                 transform.Translate(0f, 0f, -newZPos );
 
-                //transform.localScale += new Vector3(newZscale, newZscale, newZPos);
-                //print("localscale after = "+ transform.localScale);
-
-                if(leftTouch.y > 0)
-                {
-                    //currentZState  = zState.far;
-                    //playerStateEvent(currentZState);
-                }
-                if(leftTouch.y < 0)
-                {
-                    //currentZState = zState.close;
-                    //playerStateEvent(currentZState);
-                }
+              
 
             }
             
@@ -304,31 +416,15 @@ public class playerController :  MonoBehaviour
             this.transform.Rotate(new Vector3(0,0,1), -1 * PlayerAngle, Space.World);
             //boostActive = true;
         }
-        /*if (Input.acceleration.z > 0.6)
-        {
-            if (zpos != 1)
-            {
-                transform.Translate(0f, 0f, 5f);
-                zpos++;
-            }
-        } else if (Input.acceleration.z < -0.6)
-        {
-            if(zpos != -1)
-            {
-                transform.Translate(0f, 0f, -5f);
-                zpos--;
-            }
-        }*/
-
-       // print("accel z = " + Input.acceleration.z);
-
+      
     }
 
     public void ActivateBoost()
     {
         originalSpeed = playerSpeed;
         playerSpeed = boostSpeed;
-        boostCount = Time.time + boostTime;
+        boostCount = boostTime;
+        boostCon.FullGauge.SetActive(false);
         boostActive = true;
         print("Boost!!!");
 
@@ -336,75 +432,7 @@ public class playerController :  MonoBehaviour
 
 
 
-    /*public void MoveByZ(tiltListener.direction newDirection)
-    {
-
-        if (newDirection == tiltListener.direction.up)
-        {
-
-                if (changeZState(1))
-                {
-                    transform.Translate(0f, 5f, -5f);
-                    transform.localScale.Scale(new Vector3(transform.localScale.x, transform.localScale.y, transform.localScale.z + 1f));
-                    
-                    zpos++;
-                }
-               
-           
-        } else if (newDirection == tiltListener.direction.down)
-        {
-                if (changeZState(-1))
-                {
-                    transform.Translate(0f, -5f, 5f);
-                transform.localScale.Scale(new Vector3(transform.localScale.x, transform.localScale.y, transform.localScale.z - 1f));
-                    zpos--;
-                }
-        }
-    }*/
-
-    /*public bool changeZState(int i)
-    {
-        bool success = false;
-        if (i == 1)
-        {
-            if(currentZState == zState.far)
-            {
-                currentZState = zState.center;
-                success = true;
-            }
-            else if(currentZState == zState.center)
-            {
-                currentZState = zState.close;
-                success = true;
-            }
-            else if(currentZState == zState.close)
-            {
-                success = false;
-            }
-        } 
-
-        else if (i == -1)
-        {
-            if(currentZState == zState.close)
-            {
-                currentZState = zState.center;
-                success = true;
-            }
-            else if(currentZState == zState.center)
-            {
-                currentZState = zState.far;
-                success = true;
-            }
-            else if(currentZState == zState.far)
-            {
-                success = false;
-            }
-        }
-
-        return success;
-
-    }*/
-
+   
     public void missileHandler(Homing.missileState ms)
     {
         if (ms == Homing.missileState.hit)
