@@ -17,12 +17,14 @@ public class UIController : MonoBehaviour {
     void OnEnable()
     {
         Homing.missleEvent += missileHandler;
+        Missile.smissleEvent += missileHandler2;
 
     }
 
     void OnDisable()
     {
         Homing.missleEvent -= missileHandler;
+        Missile.smissleEvent -= missileHandler2;
     }
 
 	// Use this for initialization
@@ -72,6 +74,28 @@ public class UIController : MonoBehaviour {
     {
         print("getting missile event");
         if (ms == Homing.missileState.hit)
+        {
+            //healthAnimator = HealthBar.GetComponent<Animator> ();
+            print("healthbar = " + healthAnimator);
+            int newHealth = healthAnimator.GetInteger("healthBarAmount");
+            newHealth--;
+            if(newHealth > 0)
+            {
+                healthAnimator.SetInteger("healthBarAmount", newHealth);
+            }
+
+            if(newHealth == 0)
+            {
+                DontDestroyOnLoad(gameObject);
+                Application.LoadLevel("GameOver");
+            }
+        }
+    }
+
+    public void missileHandler2(Missile.missileState ms)
+    {
+        print("getting missile event");
+        if (ms == Missile.missileState.hit)
         {
             //healthAnimator = HealthBar.GetComponent<Animator> ();
             print("healthbar = " + healthAnimator);

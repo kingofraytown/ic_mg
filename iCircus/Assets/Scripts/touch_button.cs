@@ -15,7 +15,7 @@ public class touch_button : MonoBehaviour {
 			//loop through the touches
 			for(int i = 0; i < Input.touchCount; i++) {
 				currTouch = i;
-				if(this.guiTexture != null && (this.guiTexture.HitTest(Input.GetTouch(i).position)))
+				if(this.GetComponent<GUITexture>() != null && (this.GetComponent<GUITexture>().HitTest(Input.GetTouch(i).position)))
 				{
 					//if currTouch hits the guiTexture
 					if(Input.GetTouch(i).phase == TouchPhase.Began)

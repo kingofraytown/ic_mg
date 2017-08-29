@@ -10,8 +10,8 @@ var _rigidbody : Rigidbody;
 */
 
 //cs
-    public float lifetime = 10f; 
-    public float missileVelocity = 0f;
+    public float lifetime = 7f; 
+    public float missileVelocity = 1.5f;
     private float originalVelocity;
     public float turn = 5f;
     public float fuseDelay;
@@ -19,13 +19,14 @@ var _rigidbody : Rigidbody;
     public GameObject missileMod;
     public ParticleSystem smokePrefab;
     public bool hit = false;
-    private Transform target;
+    public Transform target;
     public float startTime;
     private bool speedMatched;
     public bool activeMissile = true;
     public bool flying = false;
     public float eRate; 
     public int updateCount = 30;
+    public string parentName = "un named";
 
     public delegate void MissileDelegate(missileState newState);
     public static event MissileDelegate missleEvent;
@@ -55,7 +56,7 @@ var _rigidbody : Rigidbody;
         //this.transform.rotation = transform.parent.transform.rotation;
         eRate = smokePrefab.emissionRate;
         startTime = Time.time;
-        homingMissile = transform.rigidbody;
+        homingMissile = transform.GetComponent<Rigidbody>();
         originalVelocity = missileVelocity;
     Fire();
         //GameObject go = GameObject.FindGameObjectWithTag("Player");
@@ -98,7 +99,7 @@ var _rigidbody : Rigidbody;
             }
             homingMissile.velocity = transform.forward * missileVelocity;
 
-            if (dist < 15)
+            /*if (dist < 15)
             {
                 missileVelocity = 40f;
                 speedMatched = true;
@@ -107,7 +108,7 @@ var _rigidbody : Rigidbody;
             if (missileVelocity != (originalVelocity * 0.8f) && speedMatched)
             {
                 missileVelocity += 1.5f;
-            }
+            }*/
             //print("missile velocity " + missileVelocity);
 
         float newZ = homingMissile.transform.position.z;
@@ -151,10 +152,19 @@ var _rigidbody : Rigidbody;
 
             }
 
+        if (homingMissile.transform.position.z < -142)
+        {
+            int a;
+            int b;
+            a = 2;
+            b = 4;
+            int c = a + b;
+        }
             //updateCount = -1;
         //}
 
         //updateCount--;
+       // print(gameObject.name + "pos_x= " + transform.position);
     }
 
     void OnCollisionEnter(Collision collision)
@@ -196,5 +206,6 @@ var _rigidbody : Rigidbody;
         Vector3 pos = transform.position;
         
         transform.position = new Vector3(pos.x - x, pos.y, pos.z);
+        //print(gameObject.name + " reset position");
     }
 }
